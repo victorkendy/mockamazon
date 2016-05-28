@@ -7,9 +7,9 @@ import com.amazonaws.queue.doc._2012_11_05.DeleteMessage;
 import com.amazonaws.queue.doc._2012_11_05.DeleteMessageResponse;
 import com.amazonaws.queue.doc._2012_11_05.ResponseMetadata;
 
+import br.com.harada.mockamazon.RequestIdGenerator;
 import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.Queues;
-import br.com.harada.mockamazon.sqs.RequestIdGenerator;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component

@@ -10,11 +10,14 @@ public class MessageInFlight {
 	private String body;
 
 	private List<MessageAttribute> attributes;
+
+	private String receiptHandle;
 	
-	public MessageInFlight(String id, String body, List<MessageAttribute> attributes) {
+	public MessageInFlight(String id, String body, List<MessageAttribute> attributes, String receiptHandle) {
 		this.id = id;
 		this.body = body;
 		this.attributes = attributes;
+		this.receiptHandle = receiptHandle;
 	}
 
 	public String getId() {
@@ -27,5 +30,9 @@ public class MessageInFlight {
 	
 	public List<MessageAttribute> getAttributes() {
 		return attributes;
+	}
+	
+	public String getReceiptHandle() {
+		return receiptHandle;
 	}
 }

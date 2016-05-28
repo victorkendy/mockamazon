@@ -11,11 +11,11 @@ import com.amazonaws.queue.doc._2012_11_05.ReceiveMessageResponse;
 import com.amazonaws.queue.doc._2012_11_05.ReceiveMessageResult;
 import com.amazonaws.queue.doc._2012_11_05.ResponseMetadata;
 
+import br.com.harada.mockamazon.RequestIdGenerator;
 import br.com.harada.mockamazon.infra.MD5;
 import br.com.harada.mockamazon.sqs.MessageInFlight;
 import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.Queues;
-import br.com.harada.mockamazon.sqs.RequestIdGenerator;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
@@ -40,15 +40,13 @@ class ReceiveMessageHandler implements SQSHandler<ReceiveMessage>{
 			Message message = new Message();
 			message.setBody(nextMessage.getBody());
 			message.setMD5OfBody(MD5.from(message.getBody()).get());
-			if(nextMessage.getAttributes() != null) {
-				message.getMessageAttribute().addAll(nextMessage.getAttributes());
-				message.setMD5OfMessageAttributes(MD5.from(message.getMessageAttribute()).orElse(null));
-				message.setMessageId(nextMessage.getId());
-				message.setReceiptHandle(nextMessage.getId());
-			}
+			message.setMessageId(nextMessage.getId());
+			message.setReceiptHandle(nextMessage.getReceiptHandle());
+			message.getMessageAttribute().addAll(nextMessage.getAttributes());
+			message.setMD5OfMessageAttributes(MD5.from(message.getMessageAttribute()).orElse(null));
 			result.getMessage().add(message);
 		}
-		response.setReceiveMessageResult(result );
+		response.setReceiveMessageResult(result);
 		
 		return response;
 	}

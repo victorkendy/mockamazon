@@ -1,4 +1,4 @@
-package br.com.harada.mockamazon.sqs;
+package br.com.harada.mockamazon;
 
 public interface RequestIdGenerator {
 	

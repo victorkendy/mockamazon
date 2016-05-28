@@ -28,6 +28,7 @@ class MemoryQueuesPersistence implements Queues{
 	@Override
 	public void sendMessage(String queue, QueueMessage request) {
 		messages.computeIfAbsent(queue, k->new LinkedBlockingQueue<>()).add(request);
+		request.setId(generator.nextMessageId());
 	}
 
 	@Override
@@ -45,9 +46,8 @@ class MemoryQueuesPersistence implements Queues{
 				}
 				List<MessageInFlight> result = new ArrayList<>();
 				for (QueueMessage message : polledMessages) {
-					String id = generator.nextMessageId();
-					MessageInFlight messageInFlight = new MessageInFlight(id, message.getBody(), message.getAttributes());
-					messagesInFlight.put(id, messageInFlight);
+					MessageInFlight messageInFlight = new MessageInFlight(message.getId(), message.getBody(), message.getAttributes(), generator.nextMessageId());
+					messagesInFlight.put(messageInFlight.getReceiptHandle(), messageInFlight);
 					result.add(messageInFlight);
 				}
 				
@@ -60,8 +60,8 @@ class MemoryQueuesPersistence implements Queues{
 	}
 
 	@Override
-	public void remove(String id) {
-		messagesInFlight.remove(id);
+	public void remove(String receiptHandle) {
+		messagesInFlight.remove(receiptHandle);
 	}
 
 }

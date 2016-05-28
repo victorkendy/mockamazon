@@ -9,6 +9,7 @@ public class QueueMessage {
 
 	private List<MessageAttribute> attributes;
 	private String body;
+	private String id;
 
 	public QueueMessage(SendMessage message) {
 		this.attributes = message.getMessageAttribute();
@@ -27,5 +28,13 @@ public class QueueMessage {
 
 	public String getBody() {
 		return body;
+	}
+	
+	public void setId(String messageId) {
+		this.id = messageId;
+	}
+	
+	public String getId() {
+		return this.id;
 	}
 }

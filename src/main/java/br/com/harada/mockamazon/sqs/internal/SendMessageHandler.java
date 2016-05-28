@@ -8,8 +8,8 @@ import com.amazonaws.queue.doc._2012_11_05.SendMessage;
 import com.amazonaws.queue.doc._2012_11_05.SendMessageResponse;
 import com.amazonaws.queue.doc._2012_11_05.SendMessageResult;
 
+import br.com.harada.mockamazon.RequestIdGenerator;
 import br.com.harada.mockamazon.infra.MD5;
-import br.com.harada.mockamazon.sqs.MessageIdGenerator;
 import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.QueueMessage;
 import br.com.harada.mockamazon.sqs.Queues;
@@ -22,19 +22,21 @@ class SendMessageHandler implements SQSHandler<SendMessage>{
 	private Queues queues;
 	
 	@Autowired
-	private MessageIdGenerator generator;
+	private RequestIdGenerator generator;
 
 	@Override
 	public Object handle(SendMessage request, String queue) {
-		queues.sendMessage(queue, new QueueMessage(request));
+		QueueMessage queueMessage = new QueueMessage(request);
+		queues.sendMessage(queue, queueMessage);
 		
 		SendMessageResponse response = new SendMessageResponse();
 		SendMessageResult result = new SendMessageResult();
+		result.setMessageId(queueMessage.getId());
 		result.setMD5OfMessageBody(MD5.from(request.getMessageBody()).get());
 		result.setMD5OfMessageAttributes(MD5.from(request.getMessageAttribute()).orElse(null));
 		response.setSendMessageResult(result);
 		ResponseMetadata metadata = new ResponseMetadata();
-		metadata.setRequestId(generator.nextMessageId());
+		metadata.setRequestId(generator.nextRequestId());
 		response.setResponseMetadata(metadata);
 		
 		return response;

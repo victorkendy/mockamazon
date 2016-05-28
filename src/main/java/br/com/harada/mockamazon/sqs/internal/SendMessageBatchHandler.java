@@ -10,6 +10,7 @@ import com.amazonaws.queue.doc._2012_11_05.SendMessageBatchResponse;
 import com.amazonaws.queue.doc._2012_11_05.SendMessageBatchResult;
 import com.amazonaws.queue.doc._2012_11_05.SendMessageBatchResultEntry;
 
+import br.com.harada.mockamazon.RequestIdGenerator;
 import br.com.harada.mockamazon.infra.MD5;
 import br.com.harada.mockamazon.sqs.MessageIdGenerator;
 import br.com.harada.mockamazon.sqs.ParameterParser;
@@ -24,16 +25,17 @@ class SendMessageBatchHandler implements SQSHandler<SendMessageBatch>{
 	private Queues queues;
 	
 	@Autowired
-	private MessageIdGenerator generator;
+	private RequestIdGenerator generator;
 
 	@Override
 	public Object handle(SendMessageBatch request, String queue) {
 		SendMessageBatchResult result = new SendMessageBatchResult();
 		for (SendMessageBatchRequestEntry entry : request.getSendMessageBatchRequestEntry()) {
-			queues.sendMessage(queue, new QueueMessage(entry.getMessageBody(), entry.getMessageAttribute()));
+			QueueMessage queueMessage = new QueueMessage(entry.getMessageBody(), entry.getMessageAttribute());
+			queues.sendMessage(queue, queueMessage);
 			SendMessageBatchResultEntry resultEntry = new SendMessageBatchResultEntry();
 			resultEntry.setId(entry.getId());
-			resultEntry.setMessageId(generator.nextMessageId());
+			resultEntry.setMessageId(queueMessage.getId());
 			resultEntry.setMD5OfMessageBody(MD5.from(entry.getMessageBody()).get());
 			resultEntry.setMD5OfMessageAttributes(MD5.from(entry.getMessageAttribute()).orElse(null));
 		}
@@ -42,7 +44,7 @@ class SendMessageBatchHandler implements SQSHandler<SendMessageBatch>{
 		response.setSendMessageBatchResult(result);
 		
 		ResponseMetadata metadata = new ResponseMetadata();
-		metadata.setRequestId(generator.nextMessageId());
+		metadata.setRequestId(generator.nextRequestId());
 		response.setResponseMetadata(metadata);
 		
 		return response;
