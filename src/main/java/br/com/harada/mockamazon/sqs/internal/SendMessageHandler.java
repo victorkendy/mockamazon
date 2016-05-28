@@ -1,7 +1,5 @@
 package br.com.harada.mockamazon.sqs.internal;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,26 +10,22 @@ import com.amazonaws.queue.doc._2012_11_05.SendMessageResult;
 
 import br.com.harada.mockamazon.infra.MD5;
 import br.com.harada.mockamazon.sqs.MessageIdGenerator;
+import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.QueueMessage;
 import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class SendMessageHandler implements SQSHandler{
+class SendMessageHandler implements SQSHandler<SendMessage>{
 
 	@Autowired
 	private Queues queues;
 	
 	@Autowired
-	private SendMessagesParameterParser parser;
-	
-	@Autowired
 	private MessageIdGenerator generator;
 
 	@Override
-	public Object handle(Map<String, String[]> params, String queue) {
-		SendMessage request = parser.parse(params);
-		
+	public Object handle(SendMessage request, String queue) {
 		queues.sendMessage(queue, new QueueMessage(request));
 		
 		SendMessageResponse response = new SendMessageResponse();
@@ -49,6 +43,11 @@ class SendMessageHandler implements SQSHandler{
 	@Override
 	public String getActionType() {
 		return "SendMessage";
+	}
+
+	@Override
+	public Class<? extends ParameterParser<SendMessage>> getParameterParser() {
+		return SendMessagesParameterParser.class;
 	}
 
 }

@@ -13,6 +13,8 @@ import com.amazonaws.queue.doc._2012_11_05.MessageAttribute;
 import com.amazonaws.queue.doc._2012_11_05.MessageAttributeValue;
 import com.amazonaws.queue.doc._2012_11_05.SendMessage;
 
+import br.com.harada.mockamazon.sqs.ParameterParser;
+
 @Component
 class SendMessagesParameterParser extends ParameterParser<SendMessage>{
 	private static Pattern ATTR_PATTERN = Pattern.compile("MessageAttribute\\.(?<index>\\d+)\\.(?<attribute>[a-zA-Z]+)(\\.(?<valueAttr>[a-zA-Z]+))?");

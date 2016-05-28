@@ -25,6 +25,6 @@ public class SNSRequestTest {
 	@Test
 	public void publish_to_topic() throws Exception {
 		PublishRequest request = new PublishRequest("topic", "message");
-		sns.publish(request );
+		sns.publish(request);
 	}
 }

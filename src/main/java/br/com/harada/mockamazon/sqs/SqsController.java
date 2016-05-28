@@ -6,6 +6,7 @@ import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +17,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class SQSController {
 	
 	@Autowired
 	private List<SQSHandler> handlers;
 	
+	@Autowired
+	private ApplicationContext context;
+	
 	@ResponseBody
-	@RequestMapping(value="/sqs/{queueName}",method=RequestMethod.POST, produces=MediaType.APPLICATION_XML_VALUE)
+	@RequestMapping(value="/sqs/{queueName}", method=RequestMethod.POST, produces=MediaType.APPLICATION_XML_VALUE)
 	public Object receive(@RequestParam(name="Action") String action, 
 			HttpServletRequest req,
 			@RequestBody String body,
@@ -34,7 +39,8 @@ public class SQSController {
 		Optional<SQSHandler> handler = handlers.stream().filter(h -> h.getActionType().equals(action)).findFirst();
 		Object response = null;
 		if(handler.isPresent()) {
-			response = handler.get().handle(req.getParameterMap(), queue);
+			ParameterParser parser = (ParameterParser) context.getBean(handler.get().getParameterParser());
+			response = handler.get().handle(parser.parse(req.getParameterMap()), queue);
 		}
 		return response;
 	}

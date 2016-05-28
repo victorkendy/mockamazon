@@ -13,6 +13,8 @@ import com.amazonaws.queue.doc._2012_11_05.MessageAttributeValue;
 import com.amazonaws.queue.doc._2012_11_05.SendMessageBatch;
 import com.amazonaws.queue.doc._2012_11_05.SendMessageBatchRequestEntry;
 
+import br.com.harada.mockamazon.sqs.ParameterParser;
+
 /*Action=SendMessageBatch&
   Version=2012-11-05&
   SendMessageBatchRequestEntry.1.Id=1&

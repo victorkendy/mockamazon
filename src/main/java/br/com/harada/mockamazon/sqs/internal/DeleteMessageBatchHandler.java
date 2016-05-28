@@ -1,7 +1,5 @@
 package br.com.harada.mockamazon.sqs.internal;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,16 +10,14 @@ import com.amazonaws.queue.doc._2012_11_05.DeleteMessageBatchResult;
 import com.amazonaws.queue.doc._2012_11_05.DeleteMessageBatchResultEntry;
 import com.amazonaws.queue.doc._2012_11_05.ResponseMetadata;
 
+import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.RequestIdGenerator;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class DeleteMessageBatchHandler implements SQSHandler {
+class DeleteMessageBatchHandler implements SQSHandler<DeleteMessageBatch> {
 
-	@Autowired
-	private DeleteMessageBatchParser parser;
-	
 	@Autowired
 	private Queues queues;
 	
@@ -29,8 +25,7 @@ class DeleteMessageBatchHandler implements SQSHandler {
 	private RequestIdGenerator idGenerator;
 
 	@Override
-	public Object handle(Map<String, String[]> params, String queue) {
-		DeleteMessageBatch request = parser.parse(params);
+	public Object handle(DeleteMessageBatch request, String queue) {
 		DeleteMessageBatchResult result = new DeleteMessageBatchResult();
 		for (DeleteMessageBatchRequestEntry deleteEntry : request.getDeleteMessageBatchRequestEntry()) {
 			queues.remove(deleteEntry.getReceiptHandle());
@@ -51,5 +46,10 @@ class DeleteMessageBatchHandler implements SQSHandler {
 	@Override
 	public String getActionType() {
 		return "DeleteMessageBatch";
+	}
+
+	@Override
+	public Class<? extends ParameterParser<DeleteMessageBatch>> getParameterParser() {
+		return DeleteMessageBatchParser.class;
 	}
 }

@@ -1,7 +1,5 @@
 package br.com.harada.mockamazon.sqs.internal;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,26 +12,22 @@ import com.amazonaws.queue.doc._2012_11_05.SendMessageBatchResultEntry;
 
 import br.com.harada.mockamazon.infra.MD5;
 import br.com.harada.mockamazon.sqs.MessageIdGenerator;
+import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.QueueMessage;
 import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class SendMessageBatchHandler implements SQSHandler{
+class SendMessageBatchHandler implements SQSHandler<SendMessageBatch>{
 
 	@Autowired
 	private Queues queues;
 	
 	@Autowired
-	private SendMessagesBatchParameterParser parser;
-	
-	@Autowired
 	private MessageIdGenerator generator;
 
 	@Override
-	public Object handle(Map<String, String[]> params, String queue) {
-		SendMessageBatch request = parser.parse(params);
-
+	public Object handle(SendMessageBatch request, String queue) {
 		SendMessageBatchResult result = new SendMessageBatchResult();
 		for (SendMessageBatchRequestEntry entry : request.getSendMessageBatchRequestEntry()) {
 			queues.sendMessage(queue, new QueueMessage(entry.getMessageBody(), entry.getMessageAttribute()));
@@ -57,6 +51,11 @@ class SendMessageBatchHandler implements SQSHandler{
 	@Override
 	public String getActionType() {
 		return "SendMessageBatch";
+	}
+
+	@Override
+	public Class<? extends ParameterParser<SendMessageBatch>> getParameterParser() {
+		return SendMessagesBatchParameterParser.class;
 	}
 
 }

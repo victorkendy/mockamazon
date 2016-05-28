@@ -1,9 +1,9 @@
 package br.com.harada.mockamazon.sqs;
 
-import java.util.Map;
-
-public interface SQSHandler {
-	Object handle(Map<String, String[]> map, String queue);
+public interface SQSHandler<T> {
+	Object handle(T map, String queue);
 	
 	String getActionType();
+	
+	Class<? extends ParameterParser<T>> getParameterParser();
 }

@@ -1,7 +1,6 @@
 package br.com.harada.mockamazon.sqs.internal;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -14,25 +13,22 @@ import com.amazonaws.queue.doc._2012_11_05.ResponseMetadata;
 
 import br.com.harada.mockamazon.infra.MD5;
 import br.com.harada.mockamazon.sqs.MessageInFlight;
+import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.RequestIdGenerator;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class ReceiveMessageHandler implements SQSHandler{
+class ReceiveMessageHandler implements SQSHandler<ReceiveMessage>{
 
 	@Autowired
 	private Queues queues;
 	
 	@Autowired
-	private ReceiveMessageParamsParser parser;
-	
-	@Autowired
 	private RequestIdGenerator generator;
 	
 	@Override
-	public Object handle(Map<String, String[]> params, String queue) {
-		ReceiveMessage request = parser.parse(params);
+	public Object handle(ReceiveMessage request, String queue) {
 		List<MessageInFlight> nextMessages = queues.poll(queue, request.getMaxNumberOfMessages().intValue(), request.getWaitTimeSeconds().intValue());
 		
 		ReceiveMessageResponse response = new ReceiveMessageResponse();
@@ -60,6 +56,11 @@ class ReceiveMessageHandler implements SQSHandler{
 	@Override
 	public String getActionType() {
 		return "ReceiveMessage";
+	}
+
+	@Override
+	public Class<? extends ParameterParser<ReceiveMessage>> getParameterParser() {
+		return ReceiveMessageParamsParser.class;
 	}
 
 }

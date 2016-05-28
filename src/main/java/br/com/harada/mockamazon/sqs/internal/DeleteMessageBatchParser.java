@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.queue.doc._2012_11_05.DeleteMessageBatch;
 import com.amazonaws.queue.doc._2012_11_05.DeleteMessageBatchRequestEntry;
 
+import br.com.harada.mockamazon.sqs.ParameterParser;
+
 @Component
 public class DeleteMessageBatchParser extends ParameterParser<DeleteMessageBatch>{
 	
