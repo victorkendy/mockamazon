@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.Optional;
 
+import com.amazonaws.services.sqs.model.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,21 +18,12 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClient;
-import com.amazonaws.services.sqs.model.DeleteMessageBatchRequest;
-import com.amazonaws.services.sqs.model.DeleteMessageBatchRequestEntry;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
-import com.amazonaws.services.sqs.model.Message;
-import com.amazonaws.services.sqs.model.MessageAttributeValue;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
-import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
-import com.amazonaws.services.sqs.model.SendMessageRequest;
 
 public class SqsRequestTest {
 	
 	private AmazonSQS sqs;
 
-	private static String QUEUE = "queue";
+	private static String QUEUE = "worker-queue";
 	@Before
 	public void setup() {
 		AWSCredentials credentials = new BasicAWSCredentials("key", "secret");
@@ -103,5 +95,12 @@ public class SqsRequestTest {
 		SendMessageBatchRequestEntry entry2 = new SendMessageBatchRequestEntry().withId("2").withMessageBody("Another Message Body in Batch").withMessageAttributes(attributes);
 		request.withEntries(entry1, entry2);
 		sqs.sendMessageBatch(request);
+	}
+
+	@Test
+	public void get_queue_url() throws Exception {
+		GetQueueUrlResult result = sqs.getQueueUrl("worker-queue");
+
+		System.out.println(result.getQueueUrl());
 	}
 }

@@ -71,16 +71,23 @@ public class AwsParameterParser {
 
     private void setListValue(List list, Class<?> listType, String[] path, int pathIndex, String paramValue) throws Exception {
         Integer listIndex = Integer.parseInt(path[pathIndex]) - 1;
-        Object listItemValue = listType.newInstance();
-        if(list.size() <= listIndex) {
-            list.add(listIndex, listItemValue);
+        if (list.size() <= listIndex) {
+            while(list.size() < listIndex + 1){
+                list.add(null);
+            }
         }
-        Object actualListItem = list.get(listIndex);
-        if(actualListItem == null) {
-            actualListItem = listItemValue;
-            list.add(listIndex, listItemValue);
+        if(pathIndex < path.length - 1) {
+            Object listItemValue = listType.newInstance();
+            Object actualListItem = list.get(listIndex);
+            if (actualListItem == null) {
+                actualListItem = listItemValue;
+                list.set(listIndex, listItemValue);
+            }
+            setValue(actualListItem, path, pathIndex + 1, paramValue);
+        } else {
+            ParameterConverter converter = ParameterConverter.converterFor(listType);
+            list.set(listIndex, converter.convert(paramValue));
         }
-        setValue(actualListItem, path, pathIndex + 1, paramValue);
     }
 }
 

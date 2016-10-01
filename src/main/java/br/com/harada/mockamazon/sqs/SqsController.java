@@ -28,15 +28,12 @@ public class SqsController {
 	private AwsParameterParser parameterParser;
 	
 	@ResponseBody
-	@RequestMapping(value="/sqs/{queueName}", method=RequestMethod.POST, produces=MediaType.APPLICATION_XML_VALUE)
+	@RequestMapping(value="/sqs/{queueName}", method = RequestMethod.POST, produces=MediaType.APPLICATION_XML_VALUE)
 	public Object receive(@RequestParam(name="Action") String action, 
 			HttpServletRequest req,
 			@RequestBody String body,
 			@PathVariable("queueName") String queue) throws Exception {
 		
-		System.out.println(body);
-		System.out.println(action);
-		System.out.println(queue);
 		Optional<SQSHandler> handler = handlers.stream().filter(h -> h.getActionType().equals(action)).findFirst();
 		Object response = null;
 		if(handler.isPresent()) {
@@ -46,5 +43,22 @@ public class SqsController {
 			return sqsHandler.handle(parsedParam, queue);
 		}
 		return response;
+	}
+
+	@ResponseBody
+	@RequestMapping(value={"/sqs", "/sqs/"}, method = RequestMethod.POST, produces=MediaType.APPLICATION_XML_VALUE)
+	public Object consult(@RequestParam(name="Action") String action,
+						  HttpServletRequest req,
+						  @RequestBody String body) throws Exception {
+
+		Optional<SQSHandler> handler = handlers.stream().filter(h -> h.getActionType().equals(action)).findFirst();
+		Object response = null;
+		if(handler.isPresent()) {
+			SQSHandler sqsHandler = handler.get();
+			Class parameterClass = handler.get().getParameterClass();
+			Object parsedParam = parameterParser.parse(parameterClass, req.getParameterMap());
+			return sqsHandler.handle(parsedParam, null);
+		}
+		return null;
 	}
 }

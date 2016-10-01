@@ -1,6 +1,8 @@
 package br.com.harada.mockamazon.sqs.internal;
 
+import java.math.BigInteger;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,8 +35,10 @@ class ReceiveMessageHandler extends SQSHandler<ReceiveMessage>{
 
 	@Override
 	public Object handle(ReceiveMessage request, String queue) {
-		List<MessageInFlight> nextMessages = queues.poll(queue, request.getMaxNumberOfMessages().intValue(), request.getWaitTimeSeconds().intValue());
-		
+		int maxNumberOfMessages = Optional.ofNullable(request.getMaxNumberOfMessages()).orElse(BigInteger.ONE).intValue();
+		int requestWaitTimeout = Optional.ofNullable(request.getWaitTimeSeconds()).orElse(new BigInteger("5")).intValue();
+		List<MessageInFlight> nextMessages = queues.poll(queue, maxNumberOfMessages, requestWaitTimeout);
+
 		ReceiveMessageResponse response = new ReceiveMessageResponse();
 		ResponseMetadata metadata = new ResponseMetadata();
 		metadata.setRequestId(generator.nextRequestId());

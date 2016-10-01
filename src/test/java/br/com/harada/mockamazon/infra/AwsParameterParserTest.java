@@ -1,5 +1,6 @@
 package br.com.harada.mockamazon.infra;
 
+import com.amazonaws.queue.doc._2012_11_05.GetQueueAttributes;
 import com.amazonaws.queue.doc._2012_11_05.MessageAttribute;
 import com.amazonaws.queue.doc._2012_11_05.ReceiveMessage;
 import com.amazonaws.queue.doc._2012_11_05.SendMessage;
@@ -63,5 +64,16 @@ public class AwsParameterParserTest {
         assertEquals("Attr Name1", attribute1.getName());
         assertEquals("Value Data Type1", attribute1.getValue().getDataType());
         assertEquals("My String Value1", attribute1.getValue().getStringValue());
+    }
+
+    @Test
+    public void shouldParseSimpleList() throws Exception {
+        Map<String, String[]> params = new HashMap<>();
+        params.put("AttributeName.1", new String[]{"RedrivePolicy"});
+        params.put("AttributeName.2", new String[]{"RedrivePolicy2"});
+
+        GetQueueAttributes parsed = subject.parse(GetQueueAttributes.class, params);
+        assertEquals("RedrivePolicy", parsed.getAttributeName().get(0));
+        assertEquals("RedrivePolicy2", parsed.getAttributeName().get(1));
     }
 }
