@@ -3,6 +3,7 @@ package br.com.harada.mockamazon.infra;
 import net.vidageek.mirror.dsl.Mirror;
 import org.springframework.stereotype.Component;
 
+import javax.el.MethodNotFoundException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -20,9 +21,11 @@ public class AwsParameterParser {
         try {
             T value = clazz.newInstance();
             for (Map.Entry<String, String[]> entry : params.entrySet()) {
-                String paramName = entry.getKey();
-                String paramRawValue = entry.getValue()[0];
-                setValue(value, paramName.split("\\."), 0, paramRawValue);
+                try {
+                    String paramName = entry.getKey();
+                    String paramRawValue = entry.getValue()[0];
+                    setValue(value, paramName.split("\\."), 0, paramRawValue);
+                } catch (NoSuchMethodException e){}
             }
             return value;
         } catch (Exception e) {

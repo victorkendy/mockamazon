@@ -2,6 +2,7 @@ package br.com.harada.mockamazon.sns;
 
 import static org.junit.Assert.*;
 
+import com.amazonaws.services.sns.model.MessageAttributeValue;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +25,11 @@ public class SNSRequestTest {
 	
 	@Test
 	public void publish_to_topic() throws Exception {
-		PublishRequest request = new PublishRequest("topic", "message");
+		PublishRequest request = new PublishRequest("arn:aws:sns:sa-east-1:72183721893723:worker-queue", "my sns message");
+		MessageAttributeValue value = new MessageAttributeValue();
+		value.setDataType("String");
+		value.setStringValue("application/json");
+		request.addMessageAttributesEntry("contentType", value);
 		sns.publish(request);
 	}
 }
