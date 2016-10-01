@@ -16,13 +16,18 @@ import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class DeleteMessageBatchHandler implements SQSHandler<DeleteMessageBatch> {
+class DeleteMessageBatchHandler extends SQSHandler<DeleteMessageBatch> {
 
-	@Autowired
 	private Queues queues;
 	
-	@Autowired
 	private RequestIdGenerator idGenerator;
+
+	@Autowired
+	DeleteMessageBatchHandler(Queues queues, RequestIdGenerator idGenerator) {
+		super(DeleteMessageBatch.class);
+		this.queues = queues;
+		this.idGenerator = idGenerator;
+	}
 
 	@Override
 	public Object handle(DeleteMessageBatch request, String queue) {
@@ -46,10 +51,5 @@ class DeleteMessageBatchHandler implements SQSHandler<DeleteMessageBatch> {
 	@Override
 	public String getActionType() {
 		return "DeleteMessageBatch";
-	}
-
-	@Override
-	public Class<? extends ParameterParser<DeleteMessageBatch>> getParameterParser() {
-		return DeleteMessageBatchParser.class;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
+import br.com.harada.mockamazon.infra.AwsParameterParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
@@ -18,13 +19,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class SQSController {
+public class SqsController {
 	
 	@Autowired
 	private List<SQSHandler> handlers;
-	
+
 	@Autowired
-	private ApplicationContext context;
+	private AwsParameterParser parameterParser;
 	
 	@ResponseBody
 	@RequestMapping(value="/sqs/{queueName}", method=RequestMethod.POST, produces=MediaType.APPLICATION_XML_VALUE)
@@ -39,8 +40,10 @@ public class SQSController {
 		Optional<SQSHandler> handler = handlers.stream().filter(h -> h.getActionType().equals(action)).findFirst();
 		Object response = null;
 		if(handler.isPresent()) {
-			ParameterParser parser = (ParameterParser) context.getBean(handler.get().getParameterParser());
-			response = handler.get().handle(parser.parse(req.getParameterMap()), queue);
+			SQSHandler sqsHandler = handler.get();
+			Class parameterClass = handler.get().getParameterClass();
+			Object parsedParam = parameterParser.parse(parameterClass, req.getParameterMap());
+			return sqsHandler.handle(parsedParam, queue);
 		}
 		return response;
 	}

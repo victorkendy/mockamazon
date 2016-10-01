@@ -10,19 +10,23 @@ import com.amazonaws.queue.doc._2012_11_05.SendMessageResult;
 
 import br.com.harada.mockamazon.RequestIdGenerator;
 import br.com.harada.mockamazon.infra.MD5;
-import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.QueueMessage;
 import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class SendMessageHandler implements SQSHandler<SendMessage>{
+class SendMessageHandler extends SQSHandler<SendMessage>{
 
-	@Autowired
 	private Queues queues;
 	
-	@Autowired
 	private RequestIdGenerator generator;
+
+	@Autowired
+	public SendMessageHandler(Queues queues, RequestIdGenerator generator) {
+		super(SendMessage.class);
+		this.queues = queues;
+		this.generator = generator;
+	}
 
 	@Override
 	public Object handle(SendMessage request, String queue) {
@@ -46,10 +50,4 @@ class SendMessageHandler implements SQSHandler<SendMessage>{
 	public String getActionType() {
 		return "SendMessage";
 	}
-
-	@Override
-	public Class<? extends ParameterParser<SendMessage>> getParameterParser() {
-		return SendMessagesParameterParser.class;
-	}
-
 }

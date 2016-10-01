@@ -1,9 +1,19 @@
 package br.com.harada.mockamazon.sqs;
 
-public interface SQSHandler<T> {
-	Object handle(T map, String queue);
+import br.com.harada.mockamazon.infra.ActionHandler;
+
+public abstract class SQSHandler<T>{
+	private final Class<T> clazz;
+
+	public SQSHandler(Class<T> clazz) {
+		this.clazz = clazz;
+	}
+
+	public abstract Object handle(T map, String queue);
 	
-	String getActionType();
-	
-	Class<? extends ParameterParser<T>> getParameterParser();
+	public abstract String getActionType();
+
+	public final Class<T> getParameterClass(){
+		return this.clazz;
+	}
 }

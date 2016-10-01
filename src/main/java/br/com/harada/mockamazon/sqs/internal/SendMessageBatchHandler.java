@@ -12,20 +12,24 @@ import com.amazonaws.queue.doc._2012_11_05.SendMessageBatchResultEntry;
 
 import br.com.harada.mockamazon.RequestIdGenerator;
 import br.com.harada.mockamazon.infra.MD5;
-import br.com.harada.mockamazon.sqs.MessageIdGenerator;
 import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.QueueMessage;
 import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class SendMessageBatchHandler implements SQSHandler<SendMessageBatch>{
+class SendMessageBatchHandler extends SQSHandler<SendMessageBatch>{
 
-	@Autowired
 	private Queues queues;
 	
-	@Autowired
 	private RequestIdGenerator generator;
+
+	@Autowired
+	SendMessageBatchHandler(Queues queues, RequestIdGenerator generator) {
+		super(SendMessageBatch.class);
+		this.queues = queues;
+		this.generator = generator;
+	}
 
 	@Override
 	public Object handle(SendMessageBatch request, String queue) {
@@ -54,10 +58,4 @@ class SendMessageBatchHandler implements SQSHandler<SendMessageBatch>{
 	public String getActionType() {
 		return "SendMessageBatch";
 	}
-
-	@Override
-	public Class<? extends ParameterParser<SendMessageBatch>> getParameterParser() {
-		return SendMessagesBatchParameterParser.class;
-	}
-
 }

@@ -14,19 +14,23 @@ import com.amazonaws.queue.doc._2012_11_05.ResponseMetadata;
 import br.com.harada.mockamazon.RequestIdGenerator;
 import br.com.harada.mockamazon.infra.MD5;
 import br.com.harada.mockamazon.sqs.MessageInFlight;
-import br.com.harada.mockamazon.sqs.ParameterParser;
 import br.com.harada.mockamazon.sqs.Queues;
 import br.com.harada.mockamazon.sqs.SQSHandler;
 
 @Component
-class ReceiveMessageHandler implements SQSHandler<ReceiveMessage>{
+class ReceiveMessageHandler extends SQSHandler<ReceiveMessage>{
 
-	@Autowired
 	private Queues queues;
 	
-	@Autowired
 	private RequestIdGenerator generator;
-	
+
+	@Autowired
+	ReceiveMessageHandler(Queues queues, RequestIdGenerator generator) {
+		super(ReceiveMessage.class);
+		this.queues = queues;
+		this.generator = generator;
+	}
+
 	@Override
 	public Object handle(ReceiveMessage request, String queue) {
 		List<MessageInFlight> nextMessages = queues.poll(queue, request.getMaxNumberOfMessages().intValue(), request.getWaitTimeSeconds().intValue());
@@ -55,10 +59,4 @@ class ReceiveMessageHandler implements SQSHandler<ReceiveMessage>{
 	public String getActionType() {
 		return "ReceiveMessage";
 	}
-
-	@Override
-	public Class<? extends ParameterParser<ReceiveMessage>> getParameterParser() {
-		return ReceiveMessageParamsParser.class;
-	}
-
 }
